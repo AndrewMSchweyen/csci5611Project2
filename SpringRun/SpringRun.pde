@@ -2,28 +2,32 @@ import peasy.*;
 
 PeasyCam cam;
 PImage cloth;
+PShape sphere;
 int numBalls = 10;
 int threads = 30;
-final float dt = .01;
+final float dt = .001;
 float floor = 400;
-float gravity = 78;
-float restLen = 1;
+float gravity = 20;
+float restLen = 5;
 float mass = .8; 
-float k = 1000; 
-float kv = 100;
+float k = 10000; 
+float kv = 10;
 float bounce = -.1;
 float keyForce = 1000;
 float keyHold = 100;
 PVector[][] newVelocity = new PVector[threads][numBalls];
 Spring[][] springArray = new Spring[threads][numBalls];
-
-
+int updateRate = 95;
+int sphereRadius = 50;
+float sphereX = 250, sphereY =310, sphereZ = 20;
 //Create Window
 public void settings() {
   size(800, 800, P3D);
 }
 
 void setup() {
+
+  lights();
   cam = new PeasyCam(this, 300, 250, 100, 250);
   cam.setYawRotationMode();
   cloth = loadImage("cloth.png");
@@ -98,61 +102,79 @@ void update(float dt)
       springArray[i][j].position.add(newVelocity[i][j].mult(dt));
     }
   }
-  
-  //Collision Detection
-  for(int i=0; i < threads; i++)
-  {
-    for(int j =0; j<numBalls; j++)
-    {
-      if(springArray[i][j].position.y >floor)
-      {
-        springArray[i][j].velocity.y *= bounce; 
-        springArray[i][j].position.y = floor;
-      }
-    }
-  }
+  collisionDetection();
+  ////Collision Detection
+  //for(int i=0; i < threads; i++)
+  //{
+  //  for(int j =0; j<numBalls; j++)
+  //  {
+  //    if(springArray[i][j].position.y >floor)
+  //    {
+  //      springArray[i][j].velocity.y *= bounce; 
+  //      springArray[i][j].position.y = floor;
+  //    }
+  //  }
+  //}
   
   updateVelocity(); //copy newVelocity array to current velocity array (for next dt)
 }
 
+void collisionDetection()
+{
+    for(int i=0; i < threads; i++)
+  {
+    for(int j =0; j<numBalls; j++)
+    {
+      float distanceToSphere = sqrt( sq(sphereX-springArray[i][j].position.x) + sq(sphereY-springArray[i][j].position.y) + sq(sphereZ-springArray[i][j].position.z));
+   //   println("distance to sphere: " + distanceToSphere);
+      if( distanceToSphere <= (sphereRadius + .1))
+      {
+        PVector normal = new PVector(springArray[i][j].position.x - sphereX, springArray[i][j].position.z - sphereY, springArray[i][j].position.z - sphereZ);
+        normal.normalize();
+        springArray[i][j].position.x += (.1 + sphereRadius - distanceToSphere) * normal.x;
+        springArray[i][j].position.y += (.1 + sphereRadius - distanceToSphere) * normal.y;
+        springArray[i][j].position.z += (.1 + sphereRadius - distanceToSphere) * normal.z;
+   //     println("detected");
+      }
+    } 
+  }
+}
+
 void draw() 
 {
+  lights();
   println(frameRate);
-  background(255,255,255);
-  update(dt); 
+  background(120,120,120);
+  for(int i = 0; i< updateRate; i++)
+  {
+    update(dt);
+  }
   drawCloth();  
 }
 
 void drawCloth()
 {
-  //for(int i=0; i < threads; i++)
-  //{
-  //  for(int j=0; j < numBalls; j++)
-  //  {
-  //    strokeWeight(1);
-  //    if(j-1>=0)
-  //    {
-  //      line(springArray[i][j-1].position.x,springArray[i][j-1].position.y,springArray[i][j-1].position.z,springArray[i][j].position.x,springArray[i][j].position.y,springArray[i][j].position.z);
-  //    }
-  //    if(i-1>=0)
-  //    {
-  //      line(springArray[i-1][j].position.x,springArray[i-1][j].position.y,springArray[i-1][j].position.z,springArray[i][j].position.x,springArray[i][j].position.y,springArray[i][j].position.z);
-  //    }
-  //    strokeWeight(5);
-  //    point(springArray[i][j].position.x,springArray[i][j].position.y,springArray[i][j].position.z);
-        
-  //  }
-  //}
+
   
   //strokeWeight(1);
   //fill(153);
   noStroke();
+  pushMatrix();
+  translate(sphereX, sphereY, sphereZ);
+  fill(0,51,102);
+  specular(204, 102, 0);
+  lightSpecular(255, 255, 255);
+  directionalLight(204, 204, 204, 0, 0, -1);
+  sphere(sphereRadius);
+  popMatrix();
+    
   textureWrap(REPEAT);
   textureMode(NORMAL);
   for(int i=0; i < threads-1; i++)
   {
     beginShape(TRIANGLE_STRIP);
     texture(cloth);
+    noTint();
     for(int j=0; j < numBalls; j++)
     {
       float u = map(j, 0, threads-1, 0, 1);
