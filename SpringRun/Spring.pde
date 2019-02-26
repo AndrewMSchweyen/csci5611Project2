@@ -3,7 +3,7 @@ class Spring
   PVector position;
   PVector velocity;
   
-  float stringBottom;
+  double stringBottom;
   
   Spring(PVector pos, PVector vel)
   {
