@@ -46,43 +46,43 @@ void update(float dt)
   //Horizontal Spring Calculations
   for(int i=0; i < threads-1; i++)
   {
-    for(int j =0; j<numBalls; j++)
-    {
-      PVector energy = new PVector(0,0,0);
-      float v1 ,v2 =0;
-      float force =0;
-      float length = 0;  
-      PVector.sub(springArray[i+1][j].position, springArray[i][j].position, energy);
-      length = sqrt(energy.dot(energy));
-      energy.normalize();
-      v1 = energy.dot(springArray[i][j].velocity);
-      v2 = energy.dot(springArray[i+1][j].velocity);
-      force = -k*(restLen - length) - kv*(v1 - v2);
-      energy.y /= mass;
-      newVelocity[i][j].add(PVector.mult(energy,force).mult(dt));
-      newVelocity[i+1][j].sub(PVector.mult(energy,force).mult(dt));    
-    }
+      for(int j =0; j<numBalls; j++)
+      {
+        PVector energy = new PVector(0,0,0);
+        float v1 ,v2 =0;
+        float force =0;
+        float length = 0;  
+        PVector.sub(springArray[i+1][j].position, springArray[i][j].position, energy);
+        length = sqrt(energy.dot(energy));
+        energy.normalize();
+        v1 = energy.dot(springArray[i][j].velocity);
+        v2 = energy.dot(springArray[i+1][j].velocity);
+        force = -k*(restLen - length) - kv*(v1 - v2);
+        energy.y /= mass;
+        newVelocity[i][j].add(PVector.mult(energy,force).mult(dt));
+        newVelocity[i+1][j].sub(PVector.mult(energy,force).mult(dt));    
+      }
   }
   
   //Vertical Spring Calculations
   for(int i=0; i < threads; i++)
   {
-    for(int j =0; j<numBalls -1 ; j++)
-    {
-      PVector energy = new PVector(0,0,0);
-      float v1 ,v2 =0;
-      float force =0;
-      float length = 0;   
-      PVector.sub(springArray[i][j+1].position, springArray[i][j].position, energy);
-      length = sqrt(energy.dot(energy));
-      energy.normalize();
-      v1 = energy.dot(springArray[i][j].velocity);
-      v2 = energy.dot(springArray[i][j+1].velocity);
-      force = -k*(restLen - length) - kv*(v1 - v2);
-      energy.y /= mass;
-      newVelocity[i][j].add(PVector.mult(energy,force).mult(dt));
-      newVelocity[i][j+1].sub(PVector.mult(energy,force).mult(dt));  
-    }
+      for(int j =0; j<numBalls -1 ; j++)
+      {
+        PVector energy = new PVector(0,0,0);
+        float v1 ,v2 =0;
+        float force =0;
+        float length = 0;   
+        PVector.sub(springArray[i][j+1].position, springArray[i][j].position, energy);
+        length = sqrt(energy.dot(energy));
+        energy.normalize();
+        v1 = energy.dot(springArray[i][j].velocity);
+        v2 = energy.dot(springArray[i][j+1].velocity);
+        force = -k*(restLen - length) - kv*(v1 - v2);
+        energy.y /= mass;
+        newVelocity[i][j].add(PVector.mult(energy,force).mult(dt));
+        newVelocity[i][j+1].sub(PVector.mult(energy,force).mult(dt));  
+      }
   }
   
   for(int i=0; i < threads; i++) 
@@ -103,18 +103,18 @@ void update(float dt)
     }
   }
   collisionDetection();
-  ////Collision Detection
-  //for(int i=0; i < threads; i++)
-  //{
-  //  for(int j =0; j<numBalls; j++)
-  //  {
-  //    if(springArray[i][j].position.y >floor)
-  //    {
-  //      springArray[i][j].velocity.y *= bounce; 
-  //      springArray[i][j].position.y = floor;
-  //    }
-  //  }
-  //}
+  //Collision Detection
+  for(int i=0; i < threads; i++)
+  {
+    for(int j =0; j<numBalls; j++)
+    {
+      if(springArray[i][j].position.y >floor)
+      {
+        springArray[i][j].velocity.y *= bounce; 
+        springArray[i][j].position.y = floor;
+      }
+    }
+  }
   
   updateVelocity(); //copy newVelocity array to current velocity array (for next dt)
 }
@@ -235,49 +235,17 @@ void keyPressed()
       springArray[threads/2-2][numBalls/2].velocity.x -= keyForce/4;
     }
     if (key == 'w') {
-      springArray[threads/2][numBalls/2].velocity.y -= keyForce;
-      springArray[threads/2][numBalls/2+1].velocity.y -= keyForce/2;
-      springArray[threads/2][numBalls/2+2].velocity.y -= keyForce/4;
-      springArray[threads/2][numBalls/2-1].velocity.y -= keyForce/2;
-      springArray[threads/2][numBalls/2-2].velocity.y -= keyForce/4;
-      springArray[threads/2+1][numBalls/2].velocity.y -= keyForce/2;
-      springArray[threads/2+2][numBalls/2].velocity.y -= keyForce/4;
-      springArray[threads/2-1][numBalls/2].velocity.y -= keyForce/2;
-      springArray[threads/2-2][numBalls/2].velocity.y -= keyForce/4;
+      sphereX+=5;
     }
     if (key == 's') {
-      springArray[threads/2][numBalls/2].velocity.y += keyForce;
-      springArray[threads/2][numBalls/2+1].velocity.y += keyForce/2;
-      springArray[threads/2][numBalls/2+2].velocity.y += keyForce/4;
-      springArray[threads/2][numBalls/2-1].velocity.y += keyForce/2;
-      springArray[threads/2][numBalls/2-2].velocity.y += keyForce/4;
-      springArray[threads/2+1][numBalls/2].velocity.y += keyForce/2;
-      springArray[threads/2+2][numBalls/2].velocity.y += keyForce/4;
-      springArray[threads/2-1][numBalls/2].velocity.y += keyForce/2;
-      springArray[threads/2-2][numBalls/2].velocity.y += keyForce/4;
+      sphereX-=5;
     }
     if (key == 'q') 
     {
-      springArray[threads/2][numBalls/2].velocity.z += keyForce;
-      springArray[threads/2][numBalls/2+1].velocity.z += keyForce/2;
-      springArray[threads/2][numBalls/2+2].velocity.z += keyForce/4;
-      springArray[threads/2][numBalls/2-1].velocity.z += keyForce/2;
-      springArray[threads/2][numBalls/2-2].velocity.z += keyForce/4;
-      springArray[threads/2+1][numBalls/2].velocity.z += keyForce/2;
-      springArray[threads/2+2][numBalls/2].velocity.z += keyForce/4;
-      springArray[threads/2-1][numBalls/2].velocity.z += keyForce/2;
-      springArray[threads/2-2][numBalls/2].velocity.z += keyForce/4;
+      sphereZ+=5;
     }
     if (key == 'e') {
-      springArray[threads/2][numBalls/2].velocity.z -= keyForce;
-      springArray[threads/2][numBalls/2+1].velocity.z -= keyForce/2;
-      springArray[threads/2][numBalls/2+2].velocity.z -= keyForce/4;
-      springArray[threads/2][numBalls/2-1].velocity.z -= keyForce/2;
-      springArray[threads/2][numBalls/2-2].velocity.z -= keyForce/4;
-      springArray[threads/2+1][numBalls/2].velocity.z -= keyForce/2;
-      springArray[threads/2+2][numBalls/2].velocity.z -= keyForce/4;
-      springArray[threads/2-1][numBalls/2].velocity.z -= keyForce/2;
-      springArray[threads/2-2][numBalls/2].velocity.z -= keyForce/4;
+      sphereZ-=5;
     }
     if (keyCode == RIGHT) 
     {
@@ -298,6 +266,9 @@ void keyPressed()
       springArray[threads/2][numBalls/2].position.z += keyHold;
     }
     if (keyCode == CONTROL) {
+      springArray[threads/2][numBalls/2].position.z -= keyHold;
+    }
+        if (keyCode == CONTROL) {
       springArray[threads/2][numBalls/2].position.z -= keyHold;
     }
 }
