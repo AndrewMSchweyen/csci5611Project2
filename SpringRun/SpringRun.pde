@@ -106,8 +106,8 @@ void update(float dt)
       springArray[i][j].position.add(newVelocity[i][j].mult(dt));
     }
   }  
-  collisionDetection();
   updateVelocity(); //copy newVelocity array to current velocity array (for next dt)
+  collisionDetection();
   
 }
 
@@ -123,9 +123,9 @@ void collisionDetection()
         PVector normal = new PVector(springArray[i][j].position.x - sphereX, springArray[i][j].position.z - sphereY, springArray[i][j].position.z - sphereZ);
         normal.normalize();
         sphereBounce = normal.dot(springArray[i][j].velocity);
-        springArray[i][j].velocity.x -= 1.5*sphereBounce* normal.x;
-        springArray[i][j].velocity.y -= 1.5*sphereBounce* normal.y;
-        springArray[i][j].velocity.z -= 1.5*sphereBounce* normal.z;
+        springArray[i][j].velocity.x -= 30*sphereBounce* normal.x;
+        springArray[i][j].velocity.y -= 30*sphereBounce* normal.y;
+        springArray[i][j].velocity.z -= 30*sphereBounce* normal.z;
         springArray[i][j].position.x += (1 + sphereRadius - distanceToSphere) * normal.x;
         springArray[i][j].position.y += (1 + sphereRadius - distanceToSphere) * normal.y;
         springArray[i][j].position.z += (1 + sphereRadius - distanceToSphere) * normal.z;
