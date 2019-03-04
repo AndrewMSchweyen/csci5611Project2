@@ -184,7 +184,6 @@ void drawCloth()
   for (int i=0; i < threads-1; i++)
   {
     beginShape(TRIANGLE_STRIP);
-    
     texture(cloth);
     for (int j=0; j < numBalls; j++)
     {

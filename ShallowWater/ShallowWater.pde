@@ -1,14 +1,21 @@
 import peasy.*;
 
 PeasyCam cam;
-int size = 100;
-int dx = 2;
-float floor = 100; 
+int waterLength = 100;
+int waterWidth;
+int dx = 8;
+float startHeight = 100;
+float floor = 0; 
 float gravity = 10;
-float heightArray[] = new float[size];
-float heightMidArray[] = new float[size];
-float momentumArray[] = new float[size];
-float momentumMidArray[] = new float[size];
+float damp = 1;
+float front = -100;
+float rear = 100;
+float dt = .01;
+float updateRate = 10;
+float heightArray[] = new float[waterLength];
+float heightMidArray[] = new float[waterLength];
+float momentumArray[] = new float[waterLength];
+float momentumMidArray[] = new float[waterLength];
 
 //Create Window
 public void settings() {
@@ -16,54 +23,57 @@ public void settings() {
 }
 
 void setup() {
-  cam = new PeasyCam(this, 100, 0, 50, 400); //centered on sphere's x and y
+  cam = new PeasyCam(this, (waterLength/2) * dx, -startHeight, 0, 800); //centered around water
   cam.setYawRotationMode();
   createWater();
-
 }
 
 void createWater()
 {
-  for(int i=0;i<size;i++)
+  for(int i=0;i<waterLength;i++)
   {
-    heightArray[i] = 50;
+    heightArray[i] = startHeight;
     momentumArray[i] = 0;
   }
-  //heightArray[10] = 120;
 }
 
 void update(float dt){
-  for(int i=0;i<size-1;i++)
+  for(int i=0;i<waterLength-1;i++)
   {
-    momentumArray[i]*=.9985;
     heightMidArray[i] = (heightArray[i] + heightArray[i+1])/2 - (dt/2) * (momentumArray[i]+momentumArray[i+1])/dx;
     momentumMidArray[i] = (momentumArray[i]+momentumArray[i+1])/2 - (dt/2) * (sq(momentumArray[i+1])/heightArray[i+1] + .5*gravity*sq(heightArray[i+1])
     - sq(momentumArray[i])/heightArray[i] - .5*gravity*sq(heightArray[i]))/dx;
   }
-  for(int i=0;i<size-2;i++)
+  for(int i=0;i<waterLength-2;i++)
   {
     heightArray[i+1] -= dt*(momentumMidArray[i+1]-momentumMidArray[i])/dx;
-    momentumArray[i+1] -= dt*(sq(momentumMidArray[i+1])/heightMidArray[i+1] + .5 * gravity * sq(heightMidArray[i+1]) 
-     - sq(momentumMidArray[i])/heightMidArray[i] - .5*gravity * sq(heightMidArray[i]))/dx;
+    momentumArray[i+1] -= dt*(damp * momentumArray[i+1] + sq(momentumMidArray[i+1])/heightMidArray[i+1] + .5*gravity*sq(heightMidArray[i+1]) 
+     - sq(momentumMidArray[i])/heightMidArray[i] - .5*gravity*sq(heightMidArray[i]))/dx;
   }
   
-  reflect();
+  reflectWater();
 }
 
-void reflect()
+void reflectWater()
 {
-  momentumArray[0] *= -1;
-  momentumArray[size-1] *= -1;
+  heightArray[0] = heightArray[1];
+  heightArray[waterLength-1] = heightArray[waterLength-2];
+  momentumArray[0] = -momentumArray[1];
+  momentumArray[waterLength-1] = -momentumArray[waterLength-2];
 }
+
 void draw() 
 {
   println(frameRate);
   background(255, 255, 255);
-  update(.01);
-  for(int i=0;i<size;i++)
+  for (int i = 0; i< updateRate; i++)
   {
-    //println("height at "+ i + " is " +heightArray[i]);
-    drawQuad(-1*heightArray[i], floor, i*dx, (i*dx)+dx, -100, 200,  #1191F0, 200, true);
+    update(dt);
+  }
+  for(int i=0;i<waterLength;i++)
+  {
+    println("height at "+ i + " is " +heightArray[i]);
+    drawQuad(-1*heightArray[i], floor, i*dx, (i+1)*dx, front, rear,  #1191F0, 200, true);
   }
 }
 
@@ -110,8 +120,16 @@ void drawQuad(float top, float bottom, float left, float right, float front, flo
 void keyPressed() 
 {
   if (keyCode == DOWN) {
-    heightArray[size/2] = 110;
-    heightArray[size/2 +1] = 105;
-    heightArray[size/2 +2] = 102;
+    heightArray[waterLength/2] = 500;
+    heightArray[waterLength/2+1] = 450;
+    heightArray[waterLength/2-1] = 450;
+  }
+ if (keyCode == UP) {
+    heightArray[1] = 800;
+    heightArray[2] = 600;
+  }
+  if (key == 'r') 
+  {
+    createWater();
   }
 }
