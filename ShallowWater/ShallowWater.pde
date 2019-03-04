@@ -70,14 +70,14 @@ void draw()
   {
     update(dt);
   }
-  for(int i=0;i<waterLength;i++)
+  for(int i=0;i<waterLength-1; i++)
   {
     println("height at "+ i + " is " +heightArray[i]);
-    drawQuad(-1*heightArray[i], floor, i*dx, (i+1)*dx, front, rear,  #1191F0, 200, true);
+    drawQuad(-1*heightArray[i], floor, i*dx, (i+1)*dx, front, rear,heightArray[i+1]*-1,  #1191F0, 200, true);
   }
 }
 
-void drawQuad(float top, float bottom, float left, float right, float front, float rear, int col, float opacity, boolean noStroke){
+void drawQuad(float top, float bottom, float left, float right, float front, float rear,float nextHeight, int col, float opacity, boolean noStroke){
   fill(col, opacity);
   stroke(0);
   if(noStroke){
@@ -85,17 +85,17 @@ void drawQuad(float top, float bottom, float left, float right, float front, flo
   }
   beginShape(QUADS);
   vertex(left, top, rear);
-  vertex(right, top, rear);
+  vertex(right, nextHeight, rear);
   vertex(right, bottom, rear);
   vertex(left, bottom, rear);
   
-  vertex(right, top, rear);
-  vertex(right, top, front);
+  vertex(right, nextHeight, rear);
+  vertex(right, nextHeight, front);
   vertex(right, bottom, front);
   vertex(right, bottom, rear);
   
   
-  vertex(right, top, front);
+  vertex(right, nextHeight, front);
   vertex(left, top, front);
   vertex(left, bottom, front);
   vertex(right, bottom, front);
@@ -106,8 +106,8 @@ void drawQuad(float top, float bottom, float left, float right, float front, flo
   vertex(left, bottom, front);
   
   vertex(left, top, front);
-  vertex(right, top, front);
-  vertex(right, top, rear);
+  vertex(right, nextHeight, front);
+  vertex(right, nextHeight, rear);
   vertex(left, top, rear);
   
   vertex(left, bottom, front);
