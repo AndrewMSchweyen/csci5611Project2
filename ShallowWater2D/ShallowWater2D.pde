@@ -1,16 +1,14 @@
-import peasy.*;
+import peasy.*; //<>// //<>//
 
 PeasyCam cam;
 int size = 100;
-int waterWidth;
 int dx = 10;
 int dy = 10;
-float startheight = 400;
-float floor = 0; 
+int time=0;
+boolean rain;
+float damp = .05;
+float startheight = 250;
 float g = 10;
-float damp = 1;
-float front = -100;
-float rear = 100;
 float dt = .01;
 float updateRate = 6;
 float h[][] = new float[size+1][size+1];
@@ -22,15 +20,16 @@ float uy[][] = new float[size][size];
 float v[][] = new float[size+1][size+1];
 float vx[][] = new float[size][size];
 float vy[][] = new float[size][size];
-boolean isNoStroke = true;
+
 //Create Window
 public void settings() {
   size(800, 800, P3D);
 }
 
 void setup() {
-  cam = new PeasyCam(this, (size/2) * dx, -startheight-30, 30, 1600); //centered around water
-  cam.setYawRotationMode();
+  cam = new PeasyCam(this, (size/2) * dx, -startheight, ((size/2) * dy), 800); //centered around water
+  //cam.setYawRotationMode();
+  cam.setPitchRotationMode();
   createWater();
 }
 
@@ -40,13 +39,11 @@ void createWater()
   {
     for(int j=0; j<size+1;  j++)
     {
-      h[i][j] = 250;
+      h[i][j] = startheight;
       v[i][j] = 0;
       u[i][j] = 0;
     }    
   }
-  
-  h[1][1]= 420;
   
   for(int i=0;i<size;i++)
   {
@@ -77,7 +74,7 @@ void update(float dt)
         dt/(2*dx)*(u[i+1][j+1] - u[i][j+1]);
       
       ux[i][j] = (u[i+1][j+1]+u[i][j+1])/2 - 
-        dt/(2*dx)*((sq(u[i+1][j+1])/h[i+1][j+1] + g/2*sq(h[i+1][j+1])) - //<>//
+        dt/(2*dx)*((sq(u[i+1][j+1])/h[i+1][j+1] + g/2*sq(h[i+1][j+1])) -
         (sq(u[i][j+1])/h[i][j+1] + g/2*sq(h[i][j+1])));
       
       vx[i][j] = (v[i+1][j+1]+v[i][j+1])/2 - 
@@ -102,7 +99,7 @@ void update(float dt)
     }
   }
   
-  for(int i=1; i < size; i++)
+  for(int i=1; i < size; i++) //full step both directions
   {
     for(int j=1; j< size; j++)
     {
@@ -119,8 +116,8 @@ void update(float dt)
         (dt/dy)*((sq(vy[i-1][j])/hy[i-1][j] + g/2*sq(hy[i-1][j])) - 
         (sq(vy[i-1][j-1])/hy[i-1][j-1] + g/2*sq(hy[i-1][j-1])));
         
-      u[i][j] *= .999;
-      v[i][j] *= .999;
+      u[i][j] -= dt *(damp*u[i][j]);
+      v[i][j] -= dt *(damp*v[i][j]);
     }
   }  
 }
@@ -143,7 +140,7 @@ void calcUX()
   {
     for(int j =0; j<size-1; j++)
     {
-        ux[i][j] = (u[i+1][j+1]+u[i][j+1])/2 - 
+            ux[i][j] = (u[i+1][j+1]+u[i][j+1])/2 - 
         dt/(2*dx)*((sq(u[i+1][j+1])/h[i+1][j+1] + g/2*sq(h[i+1][j+1])) -
         (sq(u[i][j+1])/h[i][j+1] + g/2*sq(h[i][j+1])));
     }
@@ -177,7 +174,7 @@ void reflectWater()
       
       u[i][0]= u[i][1];
       u[i][size] = u[i][size-1];
-      u[0][i] = u[1][i];
+      u[0][i] = -u[1][i];
       u[size][i] = -u[size-1][i];
       
       v[i][0]= -v[i][1];
@@ -190,63 +187,37 @@ void reflectWater()
 
 void draw() 
 {
-  //frame.setTitle(str(frameRate));
-  background(255,255,255);
+  println(frameRate);
+  background(255, 255, 255);
   textSize(32);
   fill(0, 0, 0);
-  text(frameRate, 50, -400); //<>//
-
+  text(frameRate, 0, -300);
   for (int i = 0; i< updateRate; i++)
   {
     update(dt);
   }
-  for(int i=0;i<size-1; i++)
+  for (int i=0; i < size; i++)
   {
-    for(int j=0;j<size-1; j++)
+    //noStroke();
+    fill(17, 145, 240);
+    beginShape(TRIANGLE_STRIP);
+    for (int j=0; j < size; j++)
     {
-       drawQuad(-1*h[i][j], floor, i*dx, (i+1)*dx, j*dy, (j+1)*dy, -1 * h[i+1][j], -1 * h[i][j+1], -1*h[i+1][j+1], #1191F0, 255, isNoStroke);
+      vertex(i*dx, -h[i][j+1], j*dy);
+      vertex((i+1)*dx, -h[i+1][j], (j+1)*dy);
     }
+    endShape();
   }
+  createRaindrops();
 }
 
-void drawQuad(float top, float bottom, float left, float right, float front, float rear,float nextHeightU, float nextHeightV, float nextHeightUV, int col, float opacity, boolean noStroke){
-  fill(col, opacity);
-  stroke(0);
-  if(noStroke){
-    noStroke();
+void createRaindrops()
+{
+  if(rain && (millis()-time) > 500) //every .5 second
+  {
+    h[(int)random(0,size)][(int)random(0,size)] = random(100, 200);
+    time = millis();
   }
-  beginShape(QUADS);
-  vertex(left, nextHeightV, rear);
-  vertex(right, nextHeightUV, rear);
-  vertex(right, bottom, rear);
-  vertex(left, bottom, rear);
-  
-  vertex(right, nextHeightUV, rear);
-  vertex(right, nextHeightU, front);
-  vertex(right, bottom, front);
-  vertex(right, bottom, rear);
-  
-  
-  vertex(right, nextHeightU, front);
-  vertex(left, top, front);
-  vertex(left, bottom, front);
-  vertex(right, bottom, front);
-  
-  vertex(left, top, front);
-  vertex(left, nextHeightV, rear);
-  vertex(left, bottom, rear);
-  vertex(left, bottom, front);
-  
-  vertex(left, top, front);
-  vertex(right, nextHeightU, front);
-  vertex(right, nextHeightUV, rear);
-  vertex(left, nextHeightV, rear);
-  
-  vertex(left, bottom, front);
-  vertex(right, bottom, front);
-  vertex(right, bottom, rear);
-  vertex(left, bottom, rear);
-  endShape();
 }
 
 void keyPressed() 
@@ -255,20 +226,15 @@ void keyPressed()
   {
     createWater();
   }
-    if (key == 's') 
+  if (keyCode == UP) 
   {
-    isNoStroke = (!isNoStroke);
+    h[1][1] = 20;
+    h[size-1][1] = 20;
+    h[1][size-1] = 20;
+    h[size-1][size-1] = 20;
   }
-    if (keyCode == UP) 
+  if (keyCode == DOWN) 
   {
-    h[60][60] = 90;
-  }
-    if (keyCode == DOWN) 
-  {
-        h[20][20] = 30;
-  }
-      if (keyCode == LEFT) 
-  {
-        h[99][99] = 10;
+    rain = !rain;
   }
 }

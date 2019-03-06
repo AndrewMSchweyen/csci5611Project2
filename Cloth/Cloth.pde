@@ -39,7 +39,6 @@ void createCloth()
   {
     for (int j =0; j<numBalls; j++)
     {
-      //springArray[i][j] =  new Spring(new PVector(restLen * i, 0, restLen * 2 * j), new PVector(0, 0, 0));
       springArray[i][j] =  new Spring(new PVector(200+restLen*i, 200, restLen*1.5*j), new PVector(0,0,0));
     }
   }
@@ -154,7 +153,7 @@ void draw()
   background(255, 255, 255);
   textSize(32);
   fill(0, 0, 0);
-  //text(frameRate, 200, 200);
+  text(frameRate, 200, 200);
   for (int i = 0; i< updateRate; i++)
   {
     update(dt);
