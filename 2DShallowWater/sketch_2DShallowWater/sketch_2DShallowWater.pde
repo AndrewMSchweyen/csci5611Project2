@@ -5,7 +5,7 @@ int size = 100;
 int waterWidth;
 int dx = 10;
 int dy = 10;
-float startheight = 100;
+float startheight = 400;
 float floor = 0; 
 float g = 10;
 float damp = 1;
@@ -22,14 +22,15 @@ float uy[][] = new float[size][size];
 float v[][] = new float[size+1][size+1];
 float vx[][] = new float[size][size];
 float vy[][] = new float[size][size];
+boolean isNoStroke = true;
 //Create Window
 public void settings() {
   size(800, 800, P3D);
 }
 
 void setup() {
-  cam = new PeasyCam(this, (size/2) * dx, -startheight, 40, 800); //centered around water
-  //cam.setYawRotationMode();
+  cam = new PeasyCam(this, (size/2) * dx, -startheight-30, 30, 1600); //centered around water
+  cam.setYawRotationMode();
   createWater();
 }
 
@@ -39,13 +40,13 @@ void createWater()
   {
     for(int j=0; j<size+1;  j++)
     {
-      h[i][j] = 30;
+      h[i][j] = 250;
       v[i][j] = 0;
       u[i][j] = 0;
     }    
   }
   
-  h[1][1]= 75;
+  h[1][1]= 420;
   
   for(int i=0;i<size;i++)
   {
@@ -142,7 +143,7 @@ void calcUX()
   {
     for(int j =0; j<size-1; j++)
     {
-            ux[i][j] = (u[i+1][j+1]+u[i][j+1])/2 - 
+        ux[i][j] = (u[i+1][j+1]+u[i][j+1])/2 - 
         dt/(2*dx)*((sq(u[i+1][j+1])/h[i+1][j+1] + g/2*sq(h[i+1][j+1])) -
         (sq(u[i][j+1])/h[i][j+1] + g/2*sq(h[i][j+1])));
     }
@@ -189,8 +190,12 @@ void reflectWater()
 
 void draw() 
 {
-  println(frameRate); //<>//
-  background(255, 255, 255);
+  //frame.setTitle(str(frameRate));
+  background(255,255,255);
+  textSize(32);
+  fill(0, 0, 0);
+  text(frameRate, 50, -400); //<>//
+
   for (int i = 0; i< updateRate; i++)
   {
     update(dt);
@@ -199,7 +204,7 @@ void draw()
   {
     for(int j=0;j<size-1; j++)
     {
-       drawQuad(-1*h[i][j], floor, i*dx, (i+1)*dx, j*dy, (j+1)*dy, -1 * h[i+1][j], -1 * h[i][j+1], -1*h[i+1][j+1], #1191F0, 200, false);
+       drawQuad(-1*h[i][j], floor, i*dx, (i+1)*dx, j*dy, (j+1)*dy, -1 * h[i+1][j], -1 * h[i][j+1], -1*h[i+1][j+1], #1191F0, 255, isNoStroke);
     }
   }
 }
@@ -250,12 +255,20 @@ void keyPressed()
   {
     createWater();
   }
+    if (key == 's') 
+  {
+    isNoStroke = (!isNoStroke);
+  }
     if (keyCode == UP) 
   {
-    h[15][15] = 80;
+    h[60][60] = 90;
   }
     if (keyCode == DOWN) 
   {
-        h[20][20] = 80;
+        h[20][20] = 30;
+  }
+      if (keyCode == LEFT) 
+  {
+        h[99][99] = 10;
   }
 }
