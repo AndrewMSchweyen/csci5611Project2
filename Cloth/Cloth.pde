@@ -14,6 +14,7 @@ float kv = 1000;
 float bounce = -.1;
 float sphereBounce;
 float keySpeed = 5;
+float startTime, elapsedTime = dt;
 int updateRate = 180;
 int sphereRadius = 50;
 boolean fixed = true;
@@ -148,18 +149,20 @@ void collisionDetection()
 
 void draw() 
 {
+  startTime = millis();
   lights();
-  println(frameRate);
+  println(elapsedTime);
   background(255, 255, 255);
   textSize(32);
   fill(0, 0, 0);
   text(frameRate, 200, 200);
   for (int i = 0; i< updateRate; i++)
   {
-    update(dt);
+    update(elapsedTime);
   }
   drawSphere();
   drawCloth();
+  elapsedTime = (millis() - startTime)/25000;
 }
 
 void drawSphere()

@@ -203,8 +203,11 @@ void draw()
     beginShape(TRIANGLE_STRIP);
     for (int j=0; j < size; j++)
     {
-      vertex(i*dx, -h[i][j+1], j*dy);
-      vertex((i+1)*dx, -h[i+1][j], (j+1)*dy);
+      vertex(i*dx, -h[i][j], j*dy);
+      vertex((i+1)*dx, -h[i+1][j+1], (j+1)*dy);
+      //stroke(17, 145, 240);
+      //line(i*dx, -h[i][j], j*dy, (i+1)*dx, -h[i+1][j], (j)*dy);
+      //line(i*dx, -h[i][j], j*dy, (i)*dx, -h[i][j+1], (j+1)*dy);
     }
     endShape();
   }
