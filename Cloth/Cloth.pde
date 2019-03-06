@@ -8,18 +8,18 @@ final float dt = .001;
 float floor = 500;
 float gravity = 20;
 float restLen = 5;
-float mass = .8; 
-float k = 50000; 
-float kv = 10;
+float mass = 1; 
+float k = 100000; 
+float kv = 1000;
 float bounce = -.1;
 float sphereBounce;
 float keySpeed = 5;
-int updateRate = 100;
+int updateRate = 180;
 int sphereRadius = 50;
 boolean fixed = true;
 float sphereX = 270, sphereY =310, sphereZ = 180;
-PVector[][] newVelocity = new PVector[threads][numBalls];
-Spring[][] springArray = new Spring[threads][numBalls];
+PVector newVelocity[][] = new PVector[threads][numBalls];
+Spring springArray[][] = new Spring[threads][numBalls];
 
 //Create Window
 public void settings() {
@@ -74,19 +74,19 @@ void update(float dt)
   {
     for (int j =0; j<numBalls -1; j++)
     {
-      PVector energy = new PVector(0, 0, 0);
-      float v1, v2 =0;
-      float force =0;
-      float length = 0;   
-      PVector.sub(springArray[i][j+1].position, springArray[i][j].position, energy);
-      length = sqrt(energy.dot(energy));
-      energy.normalize();
-      v1 = energy.dot(springArray[i][j].velocity);
-      v2 = energy.dot(springArray[i][j+1].velocity);
-      force = -k*(restLen - length) - kv*(v1 - v2);
-      energy.y /= mass;
-      newVelocity[i][j].add(PVector.mult(energy, force).mult(dt));
-      newVelocity[i][j+1].sub(PVector.mult(energy, force).mult(dt));
+        PVector energy = new PVector(0, 0, 0);
+        float v1, v2 =0;
+        float force =0;
+        float length = 0;   
+        PVector.sub(springArray[i][j+1].position, springArray[i][j].position, energy);
+        length = sqrt(energy.dot(energy));
+        energy.normalize();
+        v1 = energy.dot(springArray[i][j].velocity);
+        v2 = energy.dot(springArray[i][j+1].velocity);
+        force = -k*(restLen - length) - kv*(v1 - v2);
+        energy.y /= mass;
+        newVelocity[i][j].add(PVector.mult(energy, force).mult(dt));
+        newVelocity[i][j+1].sub(PVector.mult(energy, force).mult(dt));
     }
   }
 
@@ -152,6 +152,9 @@ void draw()
   lights();
   println(frameRate);
   background(255, 255, 255);
+  textSize(32);
+  fill(0, 0, 0);
+  //text(frameRate, 200, 200);
   for (int i = 0; i< updateRate; i++)
   {
     update(dt);
@@ -176,7 +179,7 @@ void drawSphere()
 
 void drawCloth()
 {
-  noStroke();
+  //noStroke();
   noLights();
   fill(255, 255, 255);
   textureWrap(REPEAT);
