@@ -3,7 +3,7 @@ import peasy.*;
 PeasyCam cam;
 int waterLength = 100;
 int waterWidth;
-int dx = 8;
+int dx = 20;
 float startHeight = 100;
 float floor = 0; 
 float gravity = 10;
@@ -11,7 +11,7 @@ float damp = 1;
 float front = -100;
 float rear = 100;
 float dt = .01;
-float updateRate = 10;
+float updateRate = 6;
 float heightArray[] = new float[waterLength];
 float heightMidArray[] = new float[waterLength];
 float momentumArray[] = new float[waterLength];
@@ -73,7 +73,7 @@ void draw()
   for(int i=0;i<waterLength-1; i++)
   {
     println("height at "+ i + " is " +heightArray[i]);
-    drawQuad(-1*heightArray[i], floor, i*dx, (i+1)*dx, front, rear,heightArray[i+1]*-1,  #1191F0, 200, true);
+    drawQuad(-1*heightArray[i], floor, i*dx, (i+1)*dx, front, rear,heightArray[i+1]*-1,  #1191F0, 255, true);
   }
 }
 
